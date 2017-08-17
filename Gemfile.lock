@@ -13,7 +13,10 @@ GEM
     faraday (0.13.0)
       multipart-post (>= 1.2, < 3)
     ice_nine (0.11.2)
+    mini_portile2 (2.1.0)
     multipart-post (2.0.0)
+    nokogiri (1.6.8.1)
+      mini_portile2 (~> 2.1.0)
     telegram-bot-ruby (0.8.3)
       faraday
       virtus
@@ -28,6 +31,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  nokogiri
   telegram-bot-ruby
 
 BUNDLED WITH
