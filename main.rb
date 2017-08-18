@@ -2,7 +2,8 @@
 require 'pg'
 conn = PG.connect(dbname: 'postgres')
   conn.exec("CREATE DATABASE ips_monitor")
-  conn.exec("CREATE TABLE issues (
+  conn = PG.connect(dbname: 'ips_monitor')
+  conn.exec("CREATE TABLE IF NOT EXISTS issues (
       id        integer PRIMARY KEY,
       user_ids  integer[]
   );")
