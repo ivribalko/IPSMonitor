@@ -4,9 +4,9 @@ module Database
       ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
 
       ActiveRecord::Base.establish_connection(
-        adapter:  'postgresql',
-        username: 'ivan',
-        database: 'ips_monitor'
+        adapter:  DB_ADAPTER,
+        username: DB_USER,
+        database: DB_NAME
       )
     end
 
