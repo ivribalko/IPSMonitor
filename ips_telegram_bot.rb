@@ -1,37 +1,38 @@
 require 'telegram/bot'
 require './ips_website.rb'
 
-class IPSTelegramBot	
-  TOKEN = '414895814:AAEgnlPOnKtQgcNpoHBvl0zGcpXJOPRUnSM'
-  MONITOR_START = '/start'
-	MONITOR_END = '/end'
-
-	def initialize
-    ips = IPSWebsite.new
-    run_bot(ips)
+class IPSTelegramBot
+	def initialize(ips, token)
+    @ips = ips
+    
+    Telegram::Bot::Client.run(token, logger: Logger.new($stderr)) do |bot|
+      @bot = bot
+    end
   end
 
-def run_bot(ips)
-  Telegram::Bot::Client.run(TOKEN, logger: Logger.new($stderr)) do |bot|
-      bot.listen do |message|
-        send = lambda { |send_text| bot.api.send_message(chat_id: message.chat.id, text: send_text) }
-        text = message.text
+  def run
+    @bot.listen do |message|
+      @message = message
+      text = message.text
 
-        if text.is_integer?
-          status = ips.get_issue_status(text)
-          send.call(!status.nil? ? status : "Не получилось узнать статус для заявки #{text}")
+      if text.is_integer?
+        status = @ips.get_issue_status(text)
+        send(!status.nil? ? status : "Не получилось узнать статус для заявки #{text}")
+      else
+        case text
+        when 1
+          send("Hello, #{message.from.first_name}")
+        when 2
+          send("Bye, #{message.from.first_name}")
         else
-          case text
-          when MONITOR_START
-            send.call("Hello, #{message.from.first_name}")
-          when MONITOR_END
-            send.call("Bye, #{message.from.first_name}")
-          else
-            send.call('Не понял')
-          end
+          send('Не понял')
         end
       end
     end
+  end
+
+  def send(text)
+    @bot.api.send_message(chat_id: @message.chat.id, text: text)
   end
 end
 
