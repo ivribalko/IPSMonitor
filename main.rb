@@ -2,7 +2,7 @@
 
 require './ips_telegram_bot.rb'
 
-TOKEN = '414895814:AAEgnlPOnKtQgcNpoHBvl0zGcpXJOPRUnSM'
+TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'
 
 ips = IPSWebsite.new
 bot = IPSTelegramBot.new(ips, TOKEN)
