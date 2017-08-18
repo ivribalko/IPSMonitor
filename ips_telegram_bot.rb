@@ -15,9 +15,9 @@ class IPSTelegramBot
       @message = message
       text = message.text
 
-      if text.is_integer?
+      if !text.nil? && text.is_integer?
         status = @ips.get_issue_status(text)
-        send(!status.nil? ? status : "Не получилось узнать статус для заявки #{text}")
+        send(!status.nil? ? status : "Couldn't get status for issue #{text}")
       else
         case text
         when 1
@@ -25,7 +25,7 @@ class IPSTelegramBot
         when 2
           send("Bye, #{message.from.first_name}")
         else
-          send('Не понял')
+          send('Sorry?')
         end
       end
     end
