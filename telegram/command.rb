@@ -3,6 +3,7 @@ module Telegram
     START   = '/start'
     WATCH   = '/watch'
     UNWATCH = '/unwatch'
+    LIST    = '/list'
     STOP    = '/stop'
   end
 end

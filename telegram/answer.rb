@@ -16,6 +16,14 @@ module Telegram
       "Couldn't get status for issue %s" % issue_number
     end
 
+    def incorrect_issue_number(issue_number)
+      "Issue number '%s' is incorrect" % issue_number
+    end
+
+    def issue_list(issues)
+      "Issues: %s" % issues.join(", ")
+    end
+
     def stopped
       'All settings cleared. Bye.'
     end
