@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+require 'pg'
+conn = PG.connect(dbname: 'postgres')
+  conn.exec("CREATE DATABASE ips_monitor")
+  conn.exec("CREATE TABLE issues (
+      id        integer PRIMARY KEY,
+      user_ids  integer[]
+  );")
 
 require './module-database.rb'
 require './module-ips.rb'
