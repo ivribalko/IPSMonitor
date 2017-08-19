@@ -2,9 +2,9 @@ require 'telegram/bot'
 
 module Telegram
   class Operator
-  	def initialize(db, ips, token)
+  	def initialize(db, watcher, token)
       @db = db
-      @ips = ips
+      @watcher = watcher
       @answer = Answer.new
       @keyboard = Telegram::Bot::Types::ReplyKeyboardMarkup
 
@@ -22,21 +22,21 @@ module Telegram
           send(@answer.hello(message.from.first_name), keyboard)
 
         when is_command(Command::WATCH)
-          issue_number = issue_number_or_error(message.text)
-          unless issue_number.nil?
-            @db.add_user_issue(issue_number, message.from.id)
-            send(@answer.watching(issue_number))
+          issue_id = issue_id_or_error(message.text)
+          unless issue_id.nil?
+            @db.add_user_issue(issue_id, message.from.id)
+            send(@answer.watching(issue_id))
           end
 
         when is_command(Command::UNWATCH)
-          issue_number = issue_number_or_error(message.text)
-          unless issue_number.nil?
-            @db.remove_user_issue(issue_number, message.from.id)
-            send(@answer.unwatched(issue_number))
+          issue_id = issue_id_or_error(message.text)
+          unless issue_id.nil?
+            @db.remove_user_issue(issue_id, message.from.id)
+            send(@answer.unwatched(issue_id))
           end
 
         when is_command(Command::LIST)
-          issues = @db.get_issue_list(message.from.id)
+          issues = @db.get_user_issue_list(message.from.id)
           send(@answer.issue_list(issues))
 
         when is_command(Command::STOP)
@@ -56,11 +56,11 @@ module Telegram
       @keyboard.new(keyboard: answers, one_time_keyboard: false)
     end
 
-    def issue_number_or_error(text)
-      result = text.scan(/\d/)[0]
+    def issue_id_or_error(text)
+      result = text.scan(/\d+/)[0]
 
       if result.nil?
-        send(@answer.incorrect_issue_number(result))
+        send(@answer.incorrect_issue_id(result))
       end
 
       return result

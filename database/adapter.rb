@@ -21,7 +21,7 @@ module Database
     end
 
     def remove_user_issue(issue_id, user_id)
-      issue = Issue.find(issue_id)
+      issue = Issue.find_by_id(issue_id)
 
       unless issue.nil?
         users = issue.user_ids
@@ -36,10 +36,10 @@ module Database
     end
 
     def get_issue_list
-      Issue.select('id')
+      Issue.pluck(:id);
     end
 
-    def get_issue_list(user_id)
+    def get_user_issue_list(user_id)
       issues = Issue.where("user_ids IN (ARRAY[?])", user_id)
       issues.map { |issue| issue.id }
     end

@@ -4,20 +4,20 @@ module Telegram
       "Hello, %s" % name
     end
 
-    def watching(issue_number)
-      "Started watching issue %s" % issue_number
+    def watching(issue_id)
+      "Started watching issue %s" % issue_id
     end
 
-    def unwatched(issue_number)
-      "Stopped watching issue %s" % issue_number
+    def unwatched(issue_id)
+      "Stopped watching issue %s" % issue_id
     end
 
-    def no_status(issue_number)
-      "Couldn't get status for issue %s" % issue_number
+    def no_status(issue_id)
+      "Couldn't get status for issue %s" % issue_id
     end
 
-    def incorrect_issue_number(issue_number)
-      "Issue number '%s' is incorrect" % issue_number
+    def incorrect_issue_id(issue_id)
+      "Issue number '%s' is incorrect" % issue_id
     end
 
     def issue_list(issues)

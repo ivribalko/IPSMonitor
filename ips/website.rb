@@ -6,8 +6,8 @@ module IPS
 		ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1"
 		STATUS_DIV_START_TEXT = 'По данным на '
 
-		def get_issue_status(issue_number)
-			html = get_issue_website_content(issue_number)
+		def get_issue_status(issue_id)
+			html = get_issue_website_content(issue_id)
 			parsed = Nokogiri::HTML html
 			tds = parsed.css('td')
 
@@ -18,8 +18,8 @@ module IPS
 	    end
 		end
 
-		def get_issue_website_content(issue_number)
-			file = open(ISSUE_WEBSITE_PATH % issue_number)
+		def get_issue_website_content(issue_id)
+			file = open(ISSUE_WEBSITE_PATH % issue_id)
 			html = file.read.encode('utf-8')
 		end
 	end
