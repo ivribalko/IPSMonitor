@@ -16,7 +16,7 @@ module IPS
         unless next_index.nil?
           issue_id = @issues[next_index]
           puts "Checking issue %s" % issue_id
-          # puts @ips.get_issue_status(issue_id)
+          puts @ips.get_issue_status(issue_id)
         end
 
         sleep(1)
