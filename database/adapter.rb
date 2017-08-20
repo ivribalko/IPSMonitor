@@ -1,7 +1,7 @@
 module Database
   class Adapter
     def initialize
-      ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
+      # ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
 
       ActiveRecord::Base.establish_connection(
         adapter:  DB_ADAPTER,
@@ -12,11 +12,11 @@ module Database
 
     def add_user_issue(issue_id, user_id)
       issue = Issue.find_or_create_by(id:issue_id)
-      users = issue.user_ids.nil? ? [] : issue.user_ids
+      users = issue.chat_ids.nil? ? [] : issue.chat_ids
 
       unless users.include?(user_id)
         users.push(user_id)
-        issue.update(user_ids: users)
+        issue.update(chat_ids: users)
       end
     end
 
@@ -24,13 +24,13 @@ module Database
       issue = Issue.find_by_id(issue_id)
 
       unless issue.nil?
-        users = issue.user_ids
+        users = issue.chat_ids
         users.delete(user_id)
 
         if users.size == 0
           issue.destroy()
         else
-          issue.update(user_ids: users)
+          issue.update(chat_ids: users)
         end
       end
     end
@@ -40,7 +40,7 @@ module Database
     end
 
     def get_user_issue_list(user_id)
-      issues = Issue.where("user_ids IN (ARRAY[?])", user_id)
+      issues = Issue.where("chat_ids IN (ARRAY[?])", user_id)
       issues.map { |issue| issue.id }
     end
   end

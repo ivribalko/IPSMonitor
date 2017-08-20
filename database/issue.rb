@@ -8,12 +8,12 @@ module Database
     after_destroy   :check_issues_changed
 
     def save_keys
-      @ids = Issue.select('id').map { |issue| issue.id }
+      @ids = Issue.pluck(:id)
     end
 
     def check_issues_changed
       before = @ids
-      after  = Issue.select('id').map { |issue| issue.id }
+      after  = @ids = Issue.pluck(:id)
       removed = before - after
       added = after - before
 

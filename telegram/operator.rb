@@ -2,9 +2,8 @@ require 'telegram/bot'
 
 module Telegram
   class Operator
-  	def initialize(db, watcher, token)
+  	def initialize(db, token)
       @db = db
-      @watcher = watcher
       @answer = Answer.new
       @keyboard = Telegram::Bot::Types::ReplyKeyboardMarkup
 
@@ -24,14 +23,14 @@ module Telegram
         when is_command(Command::WATCH)
           issue_id = issue_id_or_error(message.text)
           unless issue_id.nil?
-            @db.add_user_issue(issue_id, message.from.id)
+            @db.add_user_issue(issue_id, message.chat.id)
             send(@answer.watching(issue_id))
           end
 
         when is_command(Command::UNWATCH)
           issue_id = issue_id_or_error(message.text)
           unless issue_id.nil?
-            @db.remove_user_issue(issue_id, message.from.id)
+            @db.remove_user_issue(issue_id, message.chat.id)
             send(@answer.unwatched(issue_id))
           end
 
@@ -50,6 +49,10 @@ module Telegram
 
     def send(text, *keyboard)
       @bot.api.send_message(chat_id: @message.chat.id, text: text, reply_markup: keyboard[0])
+    end
+
+    def send_to_chat(chat_id, text)
+      @bot.api.send_message(chat_id: chat_id, text: text)
     end
 
     def keyboard(answers)
