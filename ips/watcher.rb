@@ -14,10 +14,10 @@ module IPS
 
     def run
       loop do
-        next_index = next_index
+        index = next_index
 
-        if next_index
-          issue_id = @issues[next_index]
+        if index
+          issue_id = @issues[index]
           puts "Checking issue #{issue_id}"
           current_status = @website.get_issue_status(issue_id)
 

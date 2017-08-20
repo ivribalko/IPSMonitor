@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require './module-database.rb'
-require './module-ips.rb'
-require './module-telegram.rb'
+require './module_database.rb'
+require './module_ips.rb'
+require './module_telegram.rb'
 require 'io/console'
 
 TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
