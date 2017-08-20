@@ -2,72 +2,71 @@ require 'nokogiri'
 require 'open-uri'
 
 module IPS
-	class Website
-		ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1"
-		STATUS_DIV_START_TEXT = 'По данным на '
-		INCOMING_DIV_START_TEXT = 'Входящая корреспонденция'
-		OUTCOMING_DIV_START_TEXT = 'Исходящая корреспонденция'
+  # Methods to use IPS website html
+  class Website
+    ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?
+                          DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1".freeze
+    STATUS =    'По данным на '.freeze
+    INCOMING =  'Входящая корреспонденция'.freeze
+    OUTCOMING = 'Исходящая корреспонденция'.freeze
 
-		def initialize
-			@status_num = 0
-		end
+    def get_issue_status(issue_id)
+      tds = get_website_tds(issue_id)
+      status_td = get_td_start_with(tds, STATUS)
 
-		def get_issue_status(issue_id)
-			html = get_issue_website_content(issue_id)
-			parsed = Nokogiri::HTML html
-			tds = parsed.css('td')
+      return nil if status_td[0].nil?
 
-			status_td = tds.select {|element| element.text.start_with?(STATUS_DIV_START_TEXT)}
+      incoming_td = get_td_start_with(tds, INCOMING)
+      outcoming_td = get_td_start_with(tds, OUTCOMING)
 
-			if status_td[0].nil?
-				return nil
-			end
+      create_container(
+        status_td,
+        get_mail_status(incoming_td),
+        get_mail_status(outcoming_td)
+      )
+    end
 
-			incoming_td = tds.select {|element| element.text.start_with?(INCOMING_DIV_START_TEXT)}
-			outcoming_td = tds.select {|element| element.text.start_with?(OUTCOMING_DIV_START_TEXT)}
+    def get_td_start_with(tds, text)
+      tds.select { |e| e.text.start_with?(text) }
+    end
 
-			incoming_table = incoming_td[0].parent.parent
-			outcoming_table = outcoming_td[0].parent.parent
-			last_incoming = incoming_table.search('tr')[1]
-			last_outcoming = outcoming_table.search('tr')[1]
+    def create_container(status_td, incoming, outcoming)
+      result = IssueData.new
+      result.status = status_td[0].text
+      result.incoming_count = incoming[0]
+      result.outcoming_count = outcoming[0]
 
-			result = IssueData.new
-			result.status = status_td[0].text
-			result.incoming_count = incoming_table.children.size - 1
-			result.outcoming_count = outcoming_table.children.size - 1
-			result.last_incoming = last_incoming.nil? ? nil : last_incoming.text.strip().sub!("\n", " ")
-      result.last_outcoming = last_outcoming.nil? ? nil : last_outcoming.text.strip().sub!("\n", " ")
+      incoming[1] &&  result.last_incoming =  strip_sub(incoming[1])
+      outcoming[1] && result.last_outcoming = strip_sub(outcoming[1])
 
-			return result
-		end
+      result
+    end
 
-		def issue_website_path(issue_id)
-			return ISSUE_WEBSITE_PATH % issue_id
-		end
+    def get_mail_status(td)
+      table = td[0].parent.parent
+      count = table.children.size - 1
+      last = table.search('tr')[1]
 
-		def get_issue_website_content(issue_id)
-			file = open(issue_website_path(issue_id))
-			html = file.read.encode('utf-8')
-		end
+      [count, last]
+    end
 
-		def get_issue_website_content_test(issue_id)
-			case @status_num
-			when 0
-				filepath = './test/ips_empty_incoming_status.html'
-			when 1
-				filepath = './test/ips_registration_decision_status.html'
-			when 2
-				filepath = './test/ips_registration_status.html'
-			end
-			
-			@status_num += 1
+    def strip_sub(element)
+      element.text.strip.sub!("\n", ' ')
+    end
 
-			if @status_num > 2
-				@status_num = 0
-			end
+    def issue_website_path(issue_id)
+      ISSUE_WEBSITE_PATH % issue_id
+    end
 
-			file = open(filepath)
-			html = file.read.encode('utf-8')
-		end
-	end
+    def get_website_tds(issue_id)
+      html = get_issue_website_content(issue_id)
+      parsed = Nokogiri::HTML html
+      parsed.css('td')
+    end
+
+    def get_issue_website_content(issue_id)
+      file = open(issue_website_path(issue_id))
+      file.read.encode('utf-8')
+    end
+  end
 end

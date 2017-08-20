@@ -1,4 +1,5 @@
 module IPS
+  # Worker to periodically check issue statuses
   class Watcher
     SLEEP_TIMEOUT = 30
 
@@ -6,20 +7,18 @@ module IPS
       @website = website
       @operator = operator
       @issues = issues
-      @answer = Telegram::Answer.new #TODO get instance
+      @answer = Telegram::Answer.new # TODO: get instance
 
       @index = -1
     end
 
     def run
-      @active = true
+      loop do
+        next_index = next_index
 
-      while true
-        next_index = next_index()
-
-        unless next_index.nil?
+        if next_index
           issue_id = @issues[next_index]
-          puts "Checking issue %s" % issue_id
+          puts "Checking issue #{issue_id}"
           current_status = @website.get_issue_status(issue_id)
 
           update_issue(issue_id, current_status)
@@ -29,65 +28,74 @@ module IPS
       end
     end
 
-    def stop
-      @active = false
-    end
-
     def next_index
-      max_index = @issues.size - 1
+      issues_count = @issues.size
+      max_index = issues_count - 1
 
-      for i in 0..max_index
+      issues_count.times do
         @index += 1
-
-        if @index > max_index
-          @index = 0
-        end
-
-        if @issues[@index] != nil
-          return @index
-        end
+        @index > max_index && @index = 0
+        return @index if @issues[@index]
       end
 
-      return nil
+      nil
     end
 
+    # TODO: prob update to db all at once?
     def update_issue(issue_id, issue_data)
-      if issue_data.nil?
-        return
-      end
-
       issue = Database::Issue.find_by_id(issue_id)
 
-      if issue.nil?
-        return
-      end
+      return if issue.nil? || issue_data.nil?
 
-      if issue.status != issue_data.status
-        message = @answer.issue_updated_status(issue_id, issue_data.status)
+      changed = check_status?(issue, issue_data) ||
+                check_incoming?(issue, issue_data) ||
+                check_outcoming?(issue, issue_data)
+
+      changed && issue.update(
+        status: issue_data.status,
+        incoming_count: issue_data.incoming_count,
+        outcoming_count: issue_data.outcoming_count
+      )
+    end
+
+    def check_status?(issue, issue_data)
+      unless issue.status == issue_data.status
+        message = @answer.issue_updated_status(
+          issue_id,
+          issue_data.status
+        )
         inform(issue, message)
-
-        issue.update(status:issue_data.status)
+        true
       end
-      
-      if issue.incoming_count != issue_data.incoming_count
-        message = @answer.issue_updated_incoming(issue_id, issue_data.last_incoming)
+      false
+    end
+
+    def check_incoming?(issue, issue_data)
+      unless issue.incoming_count == issue_data.incoming_count
+        message = @answer.issue_updated_incoming(
+          issue_id,
+          issue_data.last_incoming
+        )
         inform(issue, message)
-
-        issue.update(incoming_count:issue_data.incoming_count)
+        true
       end
-      
-      if issue.outcoming_count != issue_data.outcoming_count
-        message = @answer.issue_updated_outcoming(issue_id, issue_data.last_outcoming)
+      false
+    end
+
+    def check_outcoming?(issue, issue_data)
+      unless issue.outcoming_count == issue_data.outcoming_count
+        message = @answer.issue_updated_outcoming(
+          issue_id,
+          issue_data.last_outcoming
+        )
         inform(issue, message)
-
-        issue.update(outcoming_count:issue_data.outcoming_count)
+        true
       end
+      false
     end
 
     def inform(issue, message)
-      issue.chat_ids.each { |chat_id|
-          @operator.send_to_chat(chat_id, message)
-      }
+      issue.chat_ids.each { |chat_id| @operator.send_to_chat(chat_id, message) }
     end
   end
 end

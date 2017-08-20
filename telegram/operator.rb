@@ -1,8 +1,9 @@
 require 'telegram/bot'
 
 module Telegram
+  # Telegram bot worker
   class Operator
-  	def initialize(db, token)
+    def initialize(db, token)
       @db = db
       @answer = Answer.new
       @keyboard = Telegram::Bot::Types::ReplyKeyboardMarkup
@@ -15,40 +16,75 @@ module Telegram
     def run
       @bot.listen do |message|
         @message = message
-        case
-        when is_command(Command::START)
-          keyboard = keyboard([[Command::WATCH, Command::UNWATCH, Command::LIST], [Command::START, Command::STOP]])
-          send(@answer.hello(message.from.first_name), keyboard)
 
-        when is_command(Command::WATCH)
-          issue_id = issue_id_or_error(message.text)
-          unless issue_id.nil?
-            @db.add_user_issue(issue_id, message.chat.id)
-            send(@answer.watching(issue_id))
-          end
-
-        when is_command(Command::UNWATCH)
-          issue_id = issue_id_or_error(message.text)
-          unless issue_id.nil?
-            @db.remove_user_issue(issue_id, message.chat.id)
-            send(@answer.unwatched(issue_id))
-          end
-
-        when is_command(Command::LIST)
-          issues = @db.get_user_issue_list(message.from.id)
-          send(@answer.issue_list(issues))
-
-        when is_command(Command::STOP)
-          send(@answer.stopped)
-
-        else
-          send(@answer.unknown)
-        end
+        _ = start_command? ||
+            watch_command? ||
+            unwatch_command? ||
+            list_command? ||
+            stop_command? ||
+            unknown_command
       end
     end
 
+    def start_command?
+      return false unless command?(Command::START)
+
+      keyboard = keyboard(
+        [
+          [Command::WATCH, Command::UNWATCH, Command::LIST],
+          [Command::START, Command::STOP]
+        ]
+      )
+      send(@answer.hello(@message.from.first_name), keyboard)
+      true
+    end
+
+    def watch_command?
+      return false unless command?(Command::WATCH)
+
+      issue_id = issue_id_or_error(@message.text)
+      if issue_id
+        @db.add_user_issue(issue_id, @message.chat.id)
+        send(@answer.watching(issue_id))
+      end
+      true
+    end
+
+    def unwatch_command?
+      return false unless command?(Command::UNWATCH)
+
+      issue_id = issue_id_or_error(@message.text)
+      if issue_id
+        @db.remove_user_issue(issue_id, @message.chat.id)
+        send(@answer.unwatched(issue_id))
+      end
+      true
+    end
+
+    def list_command?
+      return false unless command?(Command::LIST)
+
+      issues = @db.user_issue_list(@message.from.id)
+      send(@answer.issue_list(issues))
+      true
+    end
+
+    def stop_command?
+      return false unless command?(Command::STOP)
+      send(@answer.stopped)
+      true
+    end
+
+    def unknown_command
+      send(@answer.unknown)
+    end
+
     def send(text, *keyboard)
-      @bot.api.send_message(chat_id: @message.chat.id, text: text, reply_markup: keyboard[0])
+      @bot.api.send_message(
+        chat_id: @message.chat.id,
+        text: text,
+        reply_markup: keyboard[0]
+      )
     end
 
     def send_to_chat(chat_id, text)
@@ -61,16 +97,12 @@ module Telegram
 
     def issue_id_or_error(text)
       result = text.scan(/\d+/)[0]
-
-      if result.nil?
-        send(@answer.incorrect_issue_id(result))
-      end
-
-      return result
+      result.nil? && send(@answer.incorrect_issue_id(result))
+      result
     end
 
-    def is_command(text)
+    def command?(text)
       @message.text.start_with?(text)
     end
-  end  
+  end
 end

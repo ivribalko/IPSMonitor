@@ -1,7 +1,8 @@
 require 'active_record'
 
 module Database
-  class Issue < ActiveRecord::Base #TODO fast callbacks
+  # Issue database record
+  class Issue < ActiveRecord::Base # TODO: fast callbacks
     before_save     :save_keys
     before_destroy  :save_keys
     after_save      :check_issues_changed
