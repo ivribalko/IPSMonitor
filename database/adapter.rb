@@ -6,7 +6,6 @@ module Database
 
       ActiveRecord::Base.establish_connection(
         adapter:  DB_ADAPTER,
-        username: DB_USER,
         database: DB_NAME
       )
     end
@@ -44,18 +43,3 @@ module Database
     end
   end
 end
-
-# begin
-
-#     con = PG.connect :dbname => 'ips_monitor', :user => 'ivan'
-#     puts con.server_version
-
-# rescue PG::Error => e
-
-#     puts e.message
-
-# ensure
-
-#     con.close if con
-
-# end

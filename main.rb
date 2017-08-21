@@ -9,8 +9,8 @@ require_all 'telegram'
 TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
 
 DB_ADAPTER = 'postgresql'.freeze
-DB_USER = 'ivan'.freeze
-DB_NAME = 'ips_monitor'.freeze
+DB_NAME = DATABASE_URL
+# DB_NAME = 'ips_monitor'.freeze
 
 DEBUG = ARGV.include?('-d')
 
