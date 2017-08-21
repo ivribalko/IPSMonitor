@@ -8,9 +8,9 @@ module Telegram
       @answer = Answer.new
       @keyboard = Telegram::Bot::Types::ReplyKeyboardMarkup
 
-      Telegram::Bot::Client.run(token, logger: Logger.new($stderr)) do |bot|
-        @bot = bot
-      end
+      logger = DEBUG ? Logger.new($stderr) : nil
+
+      Telegram::Bot::Client.run(token, logger: logger) { |bot| @bot = bot }
     end
 
     def run
@@ -25,6 +25,12 @@ module Telegram
             unknown_command
       end
     end
+
+    def send_to_chat(chat_id, text)
+      @bot.api.send_message(chat_id: chat_id, text: text)
+    end
+
+    private
 
     def start_command?
       return false unless command?(Command::START)
@@ -86,10 +92,6 @@ module Telegram
         text: text,
         reply_markup: keyboard[0]
       )
-    end
-
-    def send_to_chat(chat_id, text)
-      @bot.api.send_message(chat_id: chat_id, text: text)
     end
 
     def keyboard(answers)

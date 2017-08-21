@@ -2,7 +2,7 @@ module Database
   # Operating database
   class Adapter
     def initialize
-      # ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
+      DEBUG && ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
 
       ActiveRecord::Base.establish_connection(
         adapter:  DB_ADAPTER,

@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 
-require './module_database.rb'
-require './module_ips.rb'
-require './module_telegram.rb'
 require 'io/console'
+require 'require_all'
+require_all 'database'
+require_all 'ips'
+require_all 'telegram'
 
 TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
 
@@ -11,7 +12,9 @@ DB_ADAPTER = 'postgresql'.freeze
 DB_USER = 'ivan'.freeze
 DB_NAME = 'ips_monitor'.freeze
 
-Thread.abort_on_exception = true
+DEBUG = ARGV.include?('-d')
+
+Thread.abort_on_exception = DEBUG
 
 db  = Database::Adapter.new
 ips = IPS::Website.new

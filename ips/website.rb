@@ -4,8 +4,8 @@ require 'open-uri'
 module IPS
   # Methods to use IPS website html
   class Website
-    ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?"\
-                         "DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1".freeze
+    ISSUE_WEBSITE_PATH = 'http://www1.fips.ru/fips_servl/fips_servlet?'\
+                         'DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1'.freeze
     STATUS =    'По данным на '.freeze
     INCOMING =  'Входящая корреспонденция'.freeze
     OUTCOMING = 'Исходящая корреспонденция'.freeze
@@ -25,6 +25,12 @@ module IPS
         get_mail_status(outcoming_td)
       )
     end
+
+    def issue_website_path(issue_id)
+      ISSUE_WEBSITE_PATH % issue_id
+    end
+
+    private
 
     def get_td_start_with(tds, text)
       tds.select { |e| e.text.start_with?(text) }
@@ -52,10 +58,6 @@ module IPS
 
     def strip_sub(element)
       element.text.strip.sub!("\n", ' ')
-    end
-
-    def issue_website_path(issue_id)
-      ISSUE_WEBSITE_PATH % issue_id
     end
 
     def get_website_tds(issue_id)

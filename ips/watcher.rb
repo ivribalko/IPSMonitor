@@ -18,7 +18,7 @@ module IPS
 
         if index
           issue_id = @issues[index]
-          puts "Checking issue #{issue_id}"
+          puts "Checking issue #{issue_id}\n" if DEBUG
           current_status = @website.get_issue_status(issue_id)
 
           update_issue(issue_id, current_status)
@@ -27,6 +27,8 @@ module IPS
         sleep(SLEEP_TIMEOUT)
       end
     end
+
+    private
 
     def next_index
       issues_count = @issues.size
@@ -41,7 +43,6 @@ module IPS
       nil
     end
 
-    # TODO: prob update to db all at once?
     def update_issue(issue_id, issue_data)
       issue = Database::Issue.find_by_id(issue_id)
 
@@ -59,39 +60,36 @@ module IPS
     end
 
     def changed_status?(issue, issue_data)
-      unless issue.status == issue_data.status
-        message = @answer.issue_updated_status(
-          issue_id,
-          issue_data.status
-        )
-        inform(issue, message)
-        true
-      end
-      false
+      return false if issue.status == issue_data.status
+
+      message = @answer.issue_updated_status(
+        issue.id,
+        issue_data.status
+      )
+      inform(issue, message)
+      true
     end
 
     def changed_incoming?(issue, issue_data)
-      unless issue.incoming_count == issue_data.incoming_count
-        message = @answer.issue_updated_incoming(
-          issue_id,
-          issue_data.last_incoming
-        )
-        inform(issue, message)
-        true
-      end
-      false
+      return false if issue.incoming_count == issue_data.incoming_count
+
+      message = @answer.issue_updated_incoming(
+        issue.id,
+        issue_data.last_incoming
+      )
+      inform(issue, message)
+      true
     end
 
     def changed_outcoming?(issue, issue_data)
-      unless issue.outcoming_count == issue_data.outcoming_count
-        message = @answer.issue_updated_outcoming(
-          issue_id,
-          issue_data.last_outcoming
-        )
-        inform(issue, message)
-        true
-      end
-      false
+      return false if issue.outcoming_count == issue_data.outcoming_count
+
+      message = @answer.issue_updated_outcoming(
+        issue.id,
+        issue_data.last_outcoming
+      )
+      inform(issue, message)
+      true
     end
 
     def inform(issue, message)

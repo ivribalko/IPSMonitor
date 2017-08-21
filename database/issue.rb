@@ -8,6 +8,8 @@ module Database
     after_save      :check_issues_changed
     after_destroy   :check_issues_changed
 
+    private
+
     def save_keys
       @ids = Issue.pluck(:id)
     end
