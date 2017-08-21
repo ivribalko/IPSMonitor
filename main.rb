@@ -9,7 +9,7 @@ require_all 'telegram'
 TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
 DEBUG = ARGV.include?('-d')
 DATABASE_URL = ENV['DATABASE_URL'] ||
-              'postgres://ivan@localhost/ips_monitor'
+               'postgres://ivan@localhost/ips_monitor'
 
 Thread.abort_on_exception = DEBUG
 
@@ -24,4 +24,8 @@ operator = Telegram::Operator.new(db, TOKEN)
 Thread.new { operator.run }
 
 watcher = IPS::Watcher.new(ips, operator, issue_list)
-watcher.run
+Thread.new { watcher.run }
+
+loop do
+  # break if STDIN.getch == ' '
+end

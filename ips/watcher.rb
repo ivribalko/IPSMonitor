@@ -48,9 +48,9 @@ module IPS
 
       return if issue.nil? || issue_data.nil?
 
-      changed = changed_status?(issue, issue_data) ||
-                changed_incoming?(issue, issue_data) ||
-                changed_outcoming?(issue, issue_data)
+      changed = send_changed_status?(issue, issue_data) |
+                send_changed_incoming?(issue, issue_data) |
+                send_changed_outcoming?(issue, issue_data)
 
       changed && issue.update(
         status: issue_data.status,
@@ -59,7 +59,7 @@ module IPS
       )
     end
 
-    def changed_status?(issue, issue_data)
+    def send_changed_status?(issue, issue_data)
       return false if issue.status == issue_data.status
 
       message = @answer.issue_updated_status(
@@ -70,7 +70,7 @@ module IPS
       true
     end
 
-    def changed_incoming?(issue, issue_data)
+    def send_changed_incoming?(issue, issue_data)
       return false if issue.incoming_count == issue_data.incoming_count
 
       message = @answer.issue_updated_incoming(
@@ -81,7 +81,7 @@ module IPS
       true
     end
 
-    def changed_outcoming?(issue, issue_data)
+    def send_changed_outcoming?(issue, issue_data)
       return false if issue.outcoming_count == issue_data.outcoming_count
 
       message = @answer.issue_updated_outcoming(

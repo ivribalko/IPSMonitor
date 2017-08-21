@@ -18,7 +18,7 @@ module IPS
       @status_num += 1
       @status_num > FILES.size && @status_num = 0
 
-      file = open(FILES[@status_num])
+      file = open(FILES[0])
       file.read.encode('utf-8')
     end
   end
