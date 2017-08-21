@@ -7,11 +7,6 @@ require_all 'ips'
 require_all 'telegram'
 
 TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
-
-DB_ADAPTER = 'postgresql'.freeze
-DB_NAME = ENV['DATABASE_URL']
-# DB_NAME = 'ips_monitor'.freeze
-
 DEBUG = ARGV.include?('-d')
 
 Thread.abort_on_exception = DEBUG

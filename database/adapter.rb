@@ -3,11 +3,7 @@ module Database
   class Adapter
     def initialize
       DEBUG && ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
-
-      ActiveRecord::Base.establish_connection(
-        adapter:  DB_ADAPTER,
-        database: DB_NAME
-      )
+      ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
     end
 
     def add_user_issue(issue_id, user_id)
