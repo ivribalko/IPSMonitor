@@ -24,8 +24,4 @@ Thread.new { operator.run }
 watcher = IPS::Watcher.new(ips, operator, issue_list)
 Thread.new { watcher.run }
 
-loop do
-  break if STDIN.getch == ' '
-end
-
-Process.kill('INT', 0)
+loop do end
