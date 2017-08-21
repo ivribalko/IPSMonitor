@@ -71,6 +71,7 @@ module Telegram
 
     def stop_command?
       return false unless command?(Command::STOP)
+
       send(@answer.stopped)
       true
     end

@@ -4,8 +4,8 @@ require 'open-uri'
 module IPS
   # Methods to use IPS website html
   class Website
-    ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?
-                          DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1".freeze
+    ISSUE_WEBSITE_PATH = "http://www1.fips.ru/fips_servl/fips_servlet?"\
+                         "DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1".freeze
     STATUS =    'По данным на '.freeze
     INCOMING =  'Входящая корреспонденция'.freeze
     OUTCOMING = 'Исходящая корреспонденция'.freeze
