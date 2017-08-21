@@ -18,10 +18,8 @@ issues = db.issue_list
 Database::IssueList.instance.add(issues)
 issue_list = Database::IssueList.issues
 
-operator = Telegram::Operator.new(db, TOKEN)
-Thread.new { operator.run }
-
 watcher = IPS::Watcher.new(ips, operator, issue_list)
 Thread.new { watcher.run }
 
-loop do end
+operator = Telegram::Operator.new(db, TOKEN)
+operator.run

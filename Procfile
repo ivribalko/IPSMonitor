@@ -1,1 +1,1 @@
-worker: ruby main.rb
+worker: ruby main.rb -d
