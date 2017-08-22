@@ -1,7 +1,7 @@
 module IPS
   # Worker to periodically check issue statuses
   class Watcher
-    SLEEP_TIMEOUT = 30
+    SLEEP_TIMEOUT = 120
 
     def initialize(website, operator, issues)
       @website = website

@@ -13,17 +13,17 @@ DATABASE_URL = ENV['DATABASE_URL'] ||
 
 Thread.abort_on_exception = DEBUG
 
-db  = Database::Adapter.new
-ips = IPS::Website.new
-issues = db.issue_list
+website = IPS::Website.new
+db_adapter = Database::Adapter.new(website)
+issues = db_adapter.issue_list
 
 Database::IssueList.instance.add(issues)
 issue_list = Database::IssueList.issues
 
-operator = Telegram::Operator.new(db, TOKEN)
+operator = Telegram::Operator.new(db_adapter, TOKEN)
 Thread.new { operator.run }
 
-watcher = IPS::Watcher.new(ips, operator, issue_list)
+watcher = IPS::Watcher.new(website, operator, issue_list)
 Thread.new { watcher.run }
 
 loop do
