@@ -6,23 +6,24 @@ module IPS
   class Website
     ISSUE_WEBSITE_PATH = 'http://www1.fips.ru/fips_servl/fips_servlet?'\
                          'DB=RUTMAP&DocNumber=%s&TypeFile=html&Delo=1'.freeze
-    STATUS =    'По данным на '.freeze
-    INCOMING =  'Входящая корреспонденция'.freeze
-    OUTCOMING = 'Исходящая корреспонденция'.freeze
+    STATUS =        'По данным на '.freeze
+    STATUS_AFTER =  'состояние делопроизводства: '.freeze
+    INCOMING =      'Входящая корреспонденция'.freeze
+    OUTCOMING =     'Исходящая корреспонденция'.freeze
 
     def get_issue_status(issue_id)
       tds = get_website_tds(issue_id)
-      status_td = get_td_start_with(tds, STATUS)
+      status_tds = td_start_with(tds, STATUS)
 
-      return nil if status_td[0].nil?
+      return nil if status_tds[0].nil?
 
-      incoming_td = get_td_start_with(tds, INCOMING)
-      outcoming_td = get_td_start_with(tds, OUTCOMING)
+      incoming_tds = td_start_with(tds, INCOMING)
+      outcoming_tds = td_start_with(tds, OUTCOMING)
 
       create_container(
-        status_td,
-        get_mail_status(incoming_td),
-        get_mail_status(outcoming_td)
+        status(status_tds[0]),
+        mail_status(incoming_tds[0]),
+        mail_status(outcoming_tds[0])
       )
     end
 
@@ -32,24 +33,28 @@ module IPS
 
     private
 
-    def get_td_start_with(tds, text)
+    def td_start_with(tds, text)
       tds.select { |e| e.text.start_with?(text) }
     end
 
-    def create_container(status_td, incoming, outcoming)
+    def create_container(status_td, incoming_data, outcoming_data)
       result = IssueData.new
-      result.status = status_td[0].text
-      result.incoming_count = incoming[0]
-      result.outcoming_count = outcoming[0]
+      result.status = status_td
+      result.incoming_count = incoming_data[0]
+      result.outcoming_count = outcoming_data[0]
 
-      incoming[1] &&  result.last_incoming =  strip_sub(incoming[1])
-      outcoming[1] && result.last_outcoming = strip_sub(outcoming[1])
+      incoming_data[1] &&  result.last_incoming =  strip_sub(incoming_data[1])
+      outcoming_data[1] && result.last_outcoming = strip_sub(outcoming_data[1])
 
       result
     end
 
-    def get_mail_status(td)
-      table = td[0].parent.parent
+    def status(td)
+      td.text.partition(STATUS_AFTER)[2]
+    end
+
+    def mail_status(td)
+      table = td.parent.parent
       count = table.children.size - 1
       last = table.search('tr')[1]
 

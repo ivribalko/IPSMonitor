@@ -32,17 +32,17 @@ module Telegram
     end
 
     def issue_updated_status(issue_id, status)
-      "⏹ Issue #{issue_id} status updated:\n#{status}\n"\
+      "⏹ Issue #{issue_id} status updated: #{status}\n"\
       "#{@website.issue_website_path(issue_id)}"
     end
 
     def issue_updated_incoming(issue_id, last_incoming)
-      "⬇️ Issue #{issue_id} new incoming:\n#{last_incoming}\n"\
+      "⬇️ Issue #{issue_id} new incoming: #{last_incoming}\n"\
       "#{@website.issue_website_path(issue_id)}"
     end
 
     def issue_updated_outcoming(issue_id, last_outcoming)
-      "⬆️ Issue #{issue_id} new outcoming:\n#{last_outcoming}\n"\
+      "⬆️ Issue #{issue_id} new outcoming: #{last_outcoming}\n"\
       "#{@website.issue_website_path(issue_id)}"
     end
 

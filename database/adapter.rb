@@ -47,14 +47,14 @@ module Database
     def create_issue(issue_id)
       issue_data = @website.get_issue_status(issue_id)
 
-      if issue_data.nil?
+      # if issue_data.nil?
         Issue.create(id: issue_id)
-      else
-        Issue.create(id: issue_id,
-                     status: issue_data.status,
-                     incoming_count: issue_data.incoming_count,
-                     outcoming_count: issue_data.outcoming_count)
-      end
+      # else
+      #   Issue.create(id: issue_id,
+      #                status: issue_data.status,
+      #                incoming_count: issue_data.incoming_count,
+      #                outcoming_count: issue_data.outcoming_count)
+      # end
     end
   end
 end
