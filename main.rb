@@ -6,7 +6,6 @@ require_all 'database'
 require_all 'ips'
 require_all 'telegram'
 
-TOKEN = '403748748:AAFosOYfAckovw8XDKwDNyXT7TKoAo-tJek'.freeze
 DEBUG = ARGV.include?('-d')
 DATABASE_URL = ENV['DATABASE_URL'] ||
                'postgres://ivan@localhost/ips_monitor'
